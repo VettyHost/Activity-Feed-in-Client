@@ -3,376 +3,494 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidate Profile & Activity Feed</title>
+    <title>Activity Feed PDF Exporter</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load jsPDF for PDF generation -->
+    <!-- Load jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
     <style>
-        /* Custom styling for the activity timeline */
+        /* Custom styles for the timeline */
         .activity-item {
             position: relative;
-            padding-left: 2rem;
-            margin-bottom: 1.5rem;
+            padding-left: 2.5rem; /* 40px */
+            padding-bottom: 1.5rem; /* 24px */
         }
-        
-        /* DEFAULT DOT (Gray/Neutral) */
-        .activity-item:before {
+        /* The timeline vertical line */
+        .activity-item:not(:last-child)::after {
             content: '';
             position: absolute;
-            left: 0;
-            top: 0;
-            width: 12px;
-            height: 12px;
-            background-color: #9ca3af; /* Default Gray dot */
-            border-radius: 50%;
-            z-index: 10;
-            border: 2px solid #fff;
-            box-shadow: 0 0 0 2px #d1d5db; /* Default Gray shadow */
-        }
-        
-        /* HIGHLIGHTED DOT (Red) */
-        .activity-item.highlight-red:before {
-            background-color: #ef4444; /* Red dot */
-            box-shadow: 0 0 0 2px #ef4444;
-        }
-
-        /* DEFAULT LINE (Light Gray) */
-        .activity-item:not(:last-child):after {
-            content: '';
-            position: absolute;
-            left: 5px;
-            top: 12px;
-            bottom: -1.5rem;
+            top: 0.75rem; /* 12px */
+            left: 0.5rem; /* 8px */
+            bottom: -0.75rem; /* -12px */
             width: 2px;
-            background-color: #d1d5db; /* Default Light Gray line */
-            z-index: 5;
+            background-color: #e5e7eb; /* gray-200 */
         }
-        
-        /* HIGHLIGHTED LINE (Light Red) */
-        .activity-item.highlight-red:not(:last-child):after {
-            background-color: #fca5a5; /* Light red line */
+        /* The timeline dot */
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            top: 0.5rem; /* 8px */
+            left: 0;
+            width: 1rem; /* 16px */
+            height: 1rem; /* 16px */
+            border-radius: 9999px; /* rounded-full */
+            background-color: #9ca3af; /* gray-400 */
+            z-index: 10;
+            border: 2px solid white;
         }
-        
-        /* Fixes the overlap issue in the UI by defining a consistent width for the date column */
-        .activity-item .detail-text-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+        /* Highlighted (red) state for the dot */
+        .activity-item.highlight-red::before {
+            background-color: #ef4444; /* red-500 */
         }
-        .activity-item .detail-text {
-            flex-grow: 1;
-            padding-right: 1rem; /* Space between text and date */
+        /* Highlighted (red) state for the line */
+        .activity-item.highlight-red:not(:last-child)::after {
+            background-color: #fca5a5; /* red-300 */
         }
-        .activity-item .date-text {
-            flex-shrink: 0;
-            white-space: nowrap;
+        /* Simple icon for info tooltip */
+        .info-icon {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #e0e7ff; /* indigo-100 */
+            color: #4338ca; /* indigo-700 */
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 14px;
+            cursor: help;
+            margin-left: 4px;
         }
     </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-inter text-gray-800">
+
+    <div id="app-container" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- Header Card -->
+        <header class="bg-white shadow-sm rounded-lg p-6">
+            <!-- Top Row: Name, Status, Actions -->
+            <div class="flex flex-col sm:flex-row justify-between items-start pb-4 border-b border-gray-200">
+                <!-- Left Side: Name and Status -->
+                <div class="mb-4 sm:mb-0">
+                    <h1 class="text-2xl font-bold text-gray-900">Anup Kumar</h1>
+                    <div class="mt-2">
+                        <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-blue-600 text-white">
+                            In Progress (0% complete)
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Right Side: Action Links -->
+                <div class="flex-shrink-0 flex items-center space-x-4">
+                    <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                        <svg class="w-5 h-5 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        Add New Checks
+                    </a>
+                    <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                        <svg class="w-5 h-5 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        Documents and Disclosures
+                    </a>
+                    <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                        <svg class="w-5 h-5 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 0l-3-3m3 3l-3 4m0 6H9m6 0l3 3m-3-3l3-4m-6 6v-6m0 6h6"></path></svg>
+                        Cost Summary
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Tags and Details -->
+            <div class="mt-4">
+                <div class="mb-4">
+                    <select class="border border-gray-300 rounded-md shadow-sm p-2 text-sm font-medium">
+                        <option>Screening Tags</option>
+                    </select>
+                </div>
+                
+                <!-- Details Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 text-sm">
+                    <!-- Left Column -->
+                    <div class="space-y-3">
+                        <div class_id="details-added-by">
+                            <span class="block text-gray-500 text-xs">Added By</span>
+                            <span class="font-medium text-gray-800">Testing Covid</span>
+                        </div>
+                        <div class_id="details-package">
+                            <span class="block text-gray-500 text-xs">Package</span>
+                            <span class="font-medium text-gray-800">I9 test package</span>
+                        </div>
+                        <div class_id="details-department">
+                            <span class="block text-gray-500 text-xs">Department</span>
+                            <span class="font-medium text-gray-800">Department Dev</span>
+                        </div>
+                        <div class_id="details-location">
+                            <span class="block text-gray-500 text-xs">Location</span>
+                            <span class="font-medium text-gray-800">Pune</span>
+                        </div>
+                        <div class_id="details-order-id">
+                            <span class="block text-gray-500 text-xs">Order ID</span>
+                            <span class="font-medium text-gray-800">S68ZL</span>
+                        </div>
+                    </div>
+
+                    <!-- Middle Column -->
+                    <div class="space-y-3">
+                        <div class_id="details-candidate-id">
+                            <span class="block text-gray-500 text-xs">Candidate ID</span>
+                            <span class="font-medium text-gray-800">691709b07219ac5545f8aca</span>
+                        </div>
+                        <div class_id="details-uniq-id">
+                            <span class="block text-gray-500 text-xs">uniq id</span>
+                            <span class="font-medium text-gray-800"><a href="#" class="text-blue-600">Add</a></span>
+                        </div>
+                        <div class_id="details-employment">
+                            <span class="block text-gray-500 text-xs">Expected Employment</span>
+                            <span class="font-medium text-gray-800">11/26/25 <a href="#" class="text-blue-600 ml-2">Edit</a></span>
+                        </div>
+                        <div class_id="details-start-date">
+                            <span class="block text-gray-500 text-xs">Start Date</span>
+                            <span class="font-medium text-gray-800">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-3">
+                        <div class_id="details-dob">
+                            <span class="block text-gray-500 text-xs">Date Of Birth</span>
+                            <span class="font-medium text-gray-800">11/01/xxxx <a href="#" class="text-blue-600 ml-2">View</a></span>
+                        </div>
+                        <div class_id="details-address">
+                            <span class="block text-gray-500 text-xs">Address <span class="info-icon">?</span></span>
+                            <span class="font-medium text-gray-800">Test, Phoenix, AZ, 85001</span>
+                        </div>
+                        <div class_id="details-email">
+                            <span class="block text-gray-500 text-xs">Email Address</span>
+                            <span class="font-medium text-gray-800">anup.kumar_testeeeeee@vetty.co</span>
+                        </div>
+                        <div class_id="details-phone">
+                            <span class="block text-gray-500 text-xs">Phone #</span>
+                            <span class="font-medium text-gray-800">(222) 222-2222</span>
+                        </div>
+                        <div class_id="details-ssn">
+                            <span class="block text-gray-500 text-xs">Social Security # <span class="info-icon">?</span></span>
+                            <span class="font-medium text-gray-800">XXX-XX-2222 <a href="#" class="text-blue-600 ml-2">View</a></span>
+                        </div>
+                        <div class_id="details-salary">
+                            <span class="block text-gray-500 text-xs">Expected Annual Salary</span>
+                            <span class="font-medium text-gray-800">$1,212,121</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Details & Activity Feed -->
+            <div class="lg:col-span-1 space-y-6">
+
+                <!-- Actions Section -->
+                <div class="flex justify-between items-center px-1">
+                    <h2 class="text-lg font-semibold text-gray-900">Actions</h2>
+                    <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800">More Actions...</a>
+                </div>
+
+                <!-- Activity Feed Card -->
+                <div class="bg-white shadow-sm rounded-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Activity Feed</h2>
+                        <button id="export-pdf-btn" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                            <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export Activity Feed
+                        </button>
+                    </div>
+                    <!-- Timeline will be injected here by JavaScript -->
+                    <div id="activity-feed-timeline" class="mt-6"></div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Verification Cards -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <h2 class="text-lg font-semibold text-gray-900 px-1">Verified Profile</h2>
+
+                <!-- Background Screening Card -->
+                <div class="bg-white shadow-sm rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Background Screening</h2>
+                    <div class="space-y-4">
+                        
+                        <div class="text-xs text-gray-500 font-medium uppercase tracking-wider">IDENTITY</div>
+                        
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-700">Social Security Trace</span>
+                            <div class="text-right">
+                                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">In Progress</span>
+                                <div class="text-xs text-gray-500 mt-1">11/14/2025</div>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-gray-500 font-medium uppercase tracking-wider pt-2">ADVANCED CRIMINAL</div>
+
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-700">Federal Criminal Check</span>
+                             <div class="text-right">
+                                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">In Progress</span>
+                                <div class="text-xs text-gray-500 mt-1">11/14/2025</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Main Application Script -->
     <script>
-        // Global utility to get the jspdf instance
-        const { jsPDF } = window.jspdf;
-
-        // Mock data to be exported
-        const candidateData = {
-            candidate: "Anup Kumar",
-            dept: "IS Test Package",
-            location: "Pune",
-            package: "$1,212,121 (Expected Annual Salary)",
-            candidateId: "691709b07219ac95545f8aca"
-        };
-
-        const activityData = [
+        // --- DATA ---
+        // Mock data for the activity feed
+        const activityFeedData = [
             { date: "11/14/25", detail: "Vetty Reminded Anup To Complete The Form I-9." },
             { date: "11/14/25", detail: "Anup Has Not Completed Their I-9 Form.", highlight: true },
             { date: "11/14/25", detail: "Vetty Reminded Anup To Complete The Form I-9." },
             { date: "11/14/25", detail: "Vetty Reminded Anup To Complete The Form I-9." },
-            { date: "11/13/25", detail: "Background check initiated by HR." },
-            { date: "11/13/25", detail: "Candidate profile created." },
+            { date: "11/14/25", detail: "Background Screening Started", note: "I9 test package" }
         ];
-        
-        // Custom helper function to handle exponential backoff for API calls (kept for best practice)
-        async function fetchWithBackoff(url, options, retries = 3, delay = 1000) {
-            const apiKey = "" 
-            const urlWithKey = `${url}?key=${apiKey}`;
 
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(urlWithKey, options);
-                    if (response.ok) {
-                        return response;
-                    } else if (response.status === 429) {
-                        await new Promise(resolve => setTimeout(resolve, delay * (2 ** i)));
-                        continue;
-                    } else {
-                        throw new Error(`API Error: ${response.statusText}`);
-                    }
-                } catch (error) {
-                    if (i === retries - 1) throw error;
-                    await new Promise(resolve => setTimeout(resolve, delay * (2 ** i)));
-                }
+        // Mock data for the candidate, now matching the new UI
+        const candidateData = {
+            name: "Anup Kumar",
+            status: "In Progress (0% complete)",
+            addedBy: "Testing Covid",
+            package: "I9 test package",
+            department: "Department Dev",
+            location: "Pune",
+            orderId: "S68ZL",
+            candidateId: "691709b07219ac5545f8aca",
+            uniqId: "Add",
+            expectedEmployment: "11/26/25",
+            startDate: "-",
+            dob: "11/01/xxxx",
+            address: "Test, Phoenix, AZ, 85001",
+            email: "anup.kumar_testeeeeee@vetty.co",
+            phone: "(222) 222-2222",
+            ssn: "XXX-XX-2222",
+            salary: "$1,212,121"
+        };
+
+        // --- FUNCTIONS ---
+
+        /**
+         * Renders the activity feed timeline into the DOM.
+         */
+        function renderActivityFeed() {
+            const timelineContainer = document.getElementById('activity-feed-timeline');
+            
+            if (!timelineContainer) {
+                console.error("Fatal Error: timelineContainer not found.");
+                return;
             }
-            throw new Error("Failed to fetch data after multiple retries.");
-        }
 
+            timelineContainer.innerHTML = ''; 
 
-        // Function to generate and download the PDF
-        function exportActivityFeedPdf() {
-            const doc = new jsPDF();
-            let y = 15;
-            const margin = 20;
+            activityFeedData.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'activity-item';
 
-            doc.setFontSize(24);
-            doc.setFont(doc.getFont().fontName, 'bold');
-            doc.text("Candidate Activity Feed Report", margin, y);
-            y += 15;
+                let noteHTML = item.note ? `<p class="text-xs text-gray-500">${item.note}</p>` : '';
+                let detailClass = item.highlight ? 'text-red-600 font-medium' : 'text-gray-700';
 
-            // --- Candidate Details Section ---
-            doc.setFontSize(16);
-            doc.setTextColor(30, 30, 30);
-            doc.text("Candidate Details", margin, y);
-            y += 5;
-            doc.setDrawColor(150);
-            doc.line(margin, y, 190, y); // Separator line
-            y += 10;
-
-            doc.setFontSize(10);
-            doc.setFont(doc.getFont().fontName, 'normal');
-            doc.setTextColor(50, 50, 50); // Dark Gray
-
-            // Helper to add key-value pairs with better alignment
-            const addDetail = (key, value) => {
-                doc.setFont(doc.getFont().fontName, 'bold');
-                doc.text(key + ":", margin, y);
-                doc.setFont(doc.getFont().fontName, 'normal');
-                doc.text(value, margin + 50, y);
-                y += 6;
-            };
-
-            addDetail("Candidate Name", candidateData.candidate);
-            addDetail("Department", candidateData.dept);
-            addDetail("Location", candidateData.location);
-            addDetail("Package / Salary", candidateData.package);
-            addDetail("Candidate ID", candidateData.candidateId);
-            y += 15;
-
-            // --- Activity Feed Section ---
-            doc.setFontSize(16);
-            doc.setFont(doc.getFont().fontName, 'bold');
-            doc.setTextColor(30, 30, 30); // Black
-            doc.text("Activity Feed Timeline", margin, y);
-            y += 5;
-            
-            doc.setDrawColor(150);
-            doc.line(margin, y, 190, y); // Separator line
-            y += 10;
-
-            // Timeline Visualization in PDF
-            activityData.forEach(activity => {
-                // Check if we need a new page
-                if (y > 280) {
-                    doc.addPage();
-                    y = 15;
-                    doc.setFontSize(12);
-                    doc.setFont(doc.getFont().fontName, 'bold');
-                    doc.text("Activity Feed Timeline (Continued)", margin, y);
-                    y += 10;
-                }
-
-                const dateText = activity.date;
-                const detailText = activity.detail;
-                const isHighlight = activity.highlight;
-
-                // 1. Draw the vertical timeline line (connecting previous dot to this dot)
-                doc.setDrawColor(200);
-                doc.setLineWidth(0.5);
-                if (activityData.indexOf(activity) > 0) {
-                    doc.line(margin + 2, y - 7, margin + 2, y + 2);
-                }
-                
-                // 2. Draw the dot
-                const dotColor = isHighlight ? [239, 68, 68] : [156, 163, 175]; // Red or Gray
-                doc.setFillColor(...dotColor);
-                doc.circle(margin + 2, y, 1.5, 'FD'); // Filled circle
-
-                // 3. Add the date and detail text
-                doc.setFontSize(10);
-                doc.setFont(doc.getFont().fontName, 'normal');
-                
-                // Date on the right
-                doc.setTextColor(100, 100, 100);
-                doc.text(dateText, 185, y, { align: 'right' }); 
-
-                // Activity Description
-                doc.setTextColor(50, 50, 50);
-                if (isHighlight) {
-                    doc.setFont(doc.getFont().fontName, 'bold');
-                    doc.setTextColor(200, 0, 0); // Dark Red for highlighted text
-                }
-                
-                // Use doc.splitTextToSize for long descriptions, starting after the margin + dot + gap
-                const textStartX = margin + 10;
-                const maxTextWidth = 150; // Reduced width to accommodate date on the right
-                const splitText = doc.splitTextToSize(detailText, maxTextWidth);
-                doc.text(splitText, textStartX, y);
-
-                // Increment Y position based on text height
-                y += (splitText.length * 4.5) + 3; // +3 for spacing
-                
-                // Reset font style
-                doc.setFont(doc.getFont().fontName, 'normal');
-            });
-
-            // Save the PDF
-            doc.save("Activity_Feed_Report_" + candidateData.candidate.replace(/\s/g, '_') + ".pdf");
-        }
-    </script>
-</head>
-<body class="bg-gray-50 min-h-screen p-4 sm:p-8 font-sans">
-
-    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-6 sm:p-8 border border-gray-100">
-
-        <!-- Header Section -->
-        <div class="pb-6 border-b border-gray-200 mb-6">
-            <!-- First Row: Candidate Name and Action Links -->
-            <div class="flex items-start justify-between">
-                <h1 class="text-2xl font-bold text-gray-800">Anup Kumar</h1>
-                
-                <!-- Action Links (Right Aligned) -->
-                <span class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
-                    <span><a href="#" class="text-blue-600 hover:text-blue-800 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>Add New Checks</a></span>
-                    <span><a href="#" class="text-blue-600 hover:text-blue-800 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-3-3v6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>Documents and Disclosures</a></span>
-                    <span><a href="#" class="text-blue-600 hover:text-blue-800 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v4m-3-4H9m0 0a1 1 0 01-1-1V4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1z" /></svg>Cost Summary</a></span>
-                </span>
-            </div>
-            
-            <!-- Second Row: Status Badge (Below Candidate Name) -->
-            <div class="mt-2">
-                 <span class="px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full shadow-md whitespace-nowrap">
-                    In Progress (0% complete)
-                </span>
-            </div>
-
-            <div class="mt-4">
-                <!-- Dropdown for Screening Tags -->
-                <select class="px-3 py-1 border border-gray-300 rounded-lg text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500">
-                    <option>Screening Tags</option>
-                    <option>Tag 1</option>
-                    <option>Tag 2</option>
-                </select>
-            </div>
-            
-        </div>
-
-        <!-- Candidate Details Grid -->
-        <div id="candidate-details-section" class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-12 text-sm mb-10">
-            <div>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Added By:</span> <span class="text-gray-900">Testing Covid</span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Package:</span> <span class="text-gray-900">IS Test Package</span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Department:</span> <span class="text-gray-900">Department Dev</span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Location:</span> <span class="text-gray-900">Pune</span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Order ID:</span> <span class="text-gray-900">S68ZL</span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Candidate ID:</span> <span class="text-gray-900">691709b07219ac95545f8aca</span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Expected Employment:</span> <span class="text-gray-900">11/26/25 <a href="#" class="text-blue-500 hover:underline">Edit</a></span></p>
-            </div>
-            <div>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Date of Birth:</span> <span class="text-gray-900">11/01/XXXX <a href="#" class="text-blue-500 hover:underline">View</a></span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Address:</span> <span class="text-gray-900">Test, Phoenix, AZ, 85001</span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Email Address:</span> <span class="text-gray-900">anup.kumar\_testeeeeee@vetty.co</span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Phone #:</span> <span class="text-gray-900">(222) 222-2222</span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Social Security #:</span> <span class="text-gray-900">XXX-XX-2222 <a href="#" class="text-blue-500 hover:underline">View</a></span></p>
-                <p class="mb-2"><span class="font-semibold text-gray-700">Expected Annual Salary:</span> <span class="text-gray-900">$1,212,121</span></p>
-            </div>
-        </div>
-        
-        <!-- Main Content Grid (Activity Feed & Verified Profile) -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <div class="lg:col-span-1">
-                <!-- Row 1: Actions | More Actions... -->
-                <div class="flex space-x-6 text-sm mb-6">
-                    <!-- Actions (Semibold) -->
-                    <span class="text-gray-900 font-semibold">Actions</span>
-                    
-                    <!-- More Actions... (Gray Link) -->
-                    <a href="#" class="text-gray-600 hover:text-gray-800">More Actions...</a>
-                </div>
-
-                <!-- Row 2: Activity Feed Header | Export Activity Feed Link -->
-                <div class="flex justify-between items-center mb-4">
-                    <!-- Activity Feed Header -->
-                    <h2 class="text-xl font-semibold text-gray-800">Activity Feed</h2>
-
-                    <!-- Export Link (Renamed and Repositioned) -->
-                    <a href="javascript:void(0)" onclick="exportActivityFeedPdf()" 
-                       class="text-blue-600 font-medium hover:text-blue-700 transition duration-150 flex items-center text-sm">
-                        <!-- Download icon SVG -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Export Activity Feed
-                    </a>
-                </div>
-                
-                <!-- Activity Feed Timeline -->
-                <div id="activity-feed-timeline">
-                    <!-- Iterating over the mock activityData to render the feed -->
-                    <template id="activity-template">
-                        <div class="activity-item">
-                            <div class="detail-text-container">
-                                <p class="detail-text text-sm font-medium text-gray-700"></p>
-                                <span class="date-text text-xs text-gray-400"></span>
-                            </div>
+                itemDiv.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm ${detailClass}">${item.detail}</p>
+                            ${noteHTML}
                         </div>
-                    </template>
-                </div>
-            </div>
-
-            <div class="lg:col-span-2">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Verified Profile</h2>
-                <!-- Mock Verified Profile Sections -->
-                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 shadow-sm">
-                    <h3 class="text-lg font-medium mb-3">Background Screening</h3>
-                    <div class="flex justify-between items-center mb-2 text-sm">
-                        <p>Social Security Trace</p>
-                        <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full font-semibold">In Progress</span>
+                        <span class="text-sm text-gray-500 flex-shrink-0 ml-4">${item.date}</span>
                     </div>
-                    <div class="flex justify-between items-center text-sm">
-                        <p>Federal Criminal Check</p>
-                        <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full font-semibold">In Progress</span>
-                    </div>
-                </div>
+                `;
 
-                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
-                    <h3 class="text-lg font-medium mb-3">Motor Vehicle Record</h3>
-                    <p class="text-gray-500 text-sm">Details pending on check completion.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // IIFE to populate the mock Activity Feed in the HTML
-        (function renderActivityFeed() {
-            const container = document.getElementById('activity-feed-timeline');
-            const template = document.getElementById('activity-template');
-
-            activityData.forEach(item => {
-                const clone = template.content.cloneNode(true);
-                const itemDiv = clone.querySelector('.activity-item');
-                
-                // Apply the red dot style for highlighted items
                 if (item.highlight) {
-                    itemDiv.classList.add('highlight-red'); 
-                    itemDiv.querySelector('.detail-text').classList.add('text-red-600', 'font-bold');
-                } 
-
-                itemDiv.querySelector('.detail-text').textContent = item.detail;
-                itemDiv.querySelector('.date-text').textContent = item.date;
-                container.appendChild(clone);
+                    itemDiv.classList.add('highlight-red');
+                }
+                
+                timelineContainer.appendChild(itemDiv);
             });
+        }
+
+        /**
+         * Generates and downloads a PDF of the activity feed and candidate details.
+         */
+        function exportActivityFeedPdf() {
+            try {
+                const { jsPDF } = window.jspdf;
+                
+                if (typeof jsPDF === 'undefined') {
+                    console.error('jsPDF library is not loaded.');
+                    alert('Error: PDF library not loaded. Please try again.');
+                    return;
+                }
+
+                const doc = new jsPDF();
+                const margin = 15;
+                const pageHeight = doc.internal.pageSize.height;
+                let y = 0; // Vertical position tracker
+
+                // --- PDF Header ---
+                doc.setFillColor(0, 102, 204); // Blue color
+                doc.rect(0, 0, doc.internal.pageSize.width, 30, 'F');
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(16);
+                doc.setTextColor(255, 255, 255);
+                doc.text("Activity Feed Report", margin, 18);
+                doc.setFontSize(12);
+                doc.text(`Candidate: ${candidateData.name}`, margin, 25);
+
+                y = 45; 
+
+                // --- Candidate Details Section ---
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 0);
+                doc.text("Candidate Details", margin, y);
+                y += 8;
+                
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                
+                // Updated details list to match the new UI
+                const details = [
+                    { label: "Package:", value: candidateData.package },
+                    { label: "Email:", value: candidateData.email },
+                    { label: "Department:", value: candidateData.department },
+                    { label: "Phone:", value: candidateData.phone },
+                    { label: "Location:", value: candidateData.location },
+                    { label: "Address:", value: candidateData.address },
+                    { label: "Order ID:", value: candidateData.orderId },
+                    { label: "SSN:", value: candidateData.ssn },
+                    { label: "Candidate ID:", value: candidateData.candidateId },
+                    { label: "DOB:", value: candidateData.dob },
+                    { label: "Expected Employment:", value: candidateData.expectedEmployment },
+                    { label: "Expected Salary:", value: candidateData.salary },
+                ];
+                
+                let textX = margin;
+                details.forEach((detail, index) => {
+                    if (y > pageHeight - 20) {
+                        doc.addPage();
+                        y = 15;
+                    }
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(detail.label, textX, y);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(detail.value, textX + 45, y); // Value offset
+                    
+                    // Simple two-column layout
+                    if (index % 2 === 0) {
+                        textX = margin + 100; // Move to second column
+                    } else {
+                        textX = margin; // Move back to first column
+                        y += 7; // Move to next row
+                    }
+                });
+
+                // Reset X and move Y for next section
+                textX = margin;
+                if (details.length % 2 !== 0) {
+                    y += 7; // Ensure we are on a new line if odd number of items
+                }
+
+                y += 10; 
+                doc.setDrawColor(200, 200, 200); 
+                doc.line(margin, y, doc.internal.pageSize.width - margin, y);
+                y += 15;
+
+                // --- Activity Feed Section ---
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(14);
+                doc.text("Activity Feed Timeline", margin, y);
+                y += 10;
+                
+                const timelineX = margin + 3; 
+                const textStartX = margin + 18;
+                const col2X = doc.internal.pageSize.width - margin - 30;
+
+                activityFeedData.forEach((item, index) => {
+                    if (y > pageHeight - 25) { 
+                        doc.addPage();
+                        y = 15;
+                    }
+
+                    doc.setFillColor(156, 163, 175); 
+                    if (item.highlight) {
+                        doc.setFillColor(239, 68, 68); 
+                    }
+                    doc.circle(timelineX, y + 1, 2.5, 'F'); 
+
+                    if (index < activityFeedData.length - 1) {
+                        doc.setDrawColor(229, 231, 235); 
+                        doc.line(timelineX, y + 4, timelineX, y + 30);
+                    }
+
+                    doc.setTextColor(0, 0, 0);
+                    if (item.highlight) {
+                        doc.setTextColor(220, 38, 38); 
+                    }
+
+                    doc.setFontSize(10);
+                    const detailLines = doc.splitTextToSize(item.detail, col2X - textStartX - 5);
+                    doc.text(detailLines, textStartX, y + 3);
+                    let textHeight = detailLines.length * 5; 
+
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(107, 114, 128); 
+                    doc.text(item.date, col2X, y + 3);
+                    
+                    if (item.note) {
+                        doc.setFontSize(9);
+                        doc.setTextColor(107, 114, 128); 
+                        doc.text(item.note, textStartX, y + 3 + textHeight);
+                        textHeight += 5;
+                    }
+
+                    y += textHeight + 8; 
+                });
+
+                // --- Save the PDF ---
+                doc.save(`Activity_Feed_Report_${candidateData.name.replace(' ', '_')}.pdf`);
+
+            } catch (error) {
+                console.error("Error exporting PDF:", error);
+                alert("An error occurred while exporting the PDF. Please check the console for details.");
+            }
+        }
+
+
+        // --- EVENT LISTENERS ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            renderActivityFeed();
             
-        })();
+            const exportBtn = document.getElementById('export-pdf-btn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', exportActivityFeedPdf);
+            } else {
+                console.error("Export PDF button not found.");
+            }
+        });
+
     </script>
 </body>
 </html>
