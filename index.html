@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Profile & Activity Feed</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Custom styling for the activity timeline */
+        .activity-item {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* DEFAULT DOT (Gray/Neutral) */
+        .activity-item:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background-color: #9ca3af; /* Default Gray dot */
+            border-radius: 50%;
+            z-index: 10;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #d1d5db; /* Default Gray shadow */
+        }
+        
+        /* HIGHLIGHTED DOT (Red) */
+        .activity-item.highlight-red:before {
+            background-color: #ef4444; /* Red dot */
+            box-shadow: 0 0 0 2px #ef4444;
+        }
+
+        /* DEFAULT LINE (Light Gray) */
+        .activity-item:not(:last-child):after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 12px;
+            bottom: -1.5rem;
+            width: 2px;
+            background-color: #d1d5db; /* Default Light Gray line */
+            z-index: 5;
+        }
+        
+        /* HIGHLIGHTED LINE (Light Red) */
+        .activity-item.highlight-red:not(:last-child):after {
+            background-color: #fca5a5; /* Light red line */
+        }
+    </style>
+    <script>
+        // Global utility to get the jspdf instance
+        const { jsPDF } = window.jspdf;
+
+        // Mock data to be exported
+        const candidateData = {
+            candidate: "Anup Kumar",
+            dept: "IS Test Package",
+            location: "Pune",
+            package: "$1,212,121 (Expected Annual Salary)",
+            candidateId: "691709b07219ac95545f8aca"
+        };
+
+        const activityData = [
+            { date: "11/14/25", detail: "Vetty Reminded Anup To Complete The Form I-9." },
+            { date: "11/14/25", detail: "Anup Has Not Completed Their I-9 Form.", highlight: true },
+            { date: "11/14/25", detail: "Vetty Reminded Anup To Complete The Form I-9." },
+            { date: "11/14/25", detail: "Vetty Reminded Anup To Complete The Form I-9." },
+            { date: "11/13/25", detail: "Background check initiated by HR." },
+            { date: "11/13/25", detail: "Candidate profile created." },
+        ];
+        
+        // Custom helper function to handle exponential backoff for API calls
+        async function fetchWithBackoff(url, options, retries = 3, delay = 1000) {
+            const apiKey = "" // If you want to use models other than gemini-2.5-flash-preview-09-2025 or imagen-4.0-generate-001, provide an API key here. Otherwise, leave this as-is.
+            const urlWithKey = `${url}?key=${apiKey}`;
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(urlWithKey, options);
+                    if (response.ok) {
+                        return response;
+                    } else if (response.status === 429) {
+                        // Too Many Requests, implement exponential backoff
+                        await new Promise(resolve => setTimeout(resolve, delay * (2 ** i)));
+                        continue;
+                    } else {
+                        throw new Error(`API Error: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    // Wait before retrying
+                    await new Promise(resolve => setTimeout(resolve, delay * (2 ** i)));
+                }
+            }
+            throw new Error("Failed to fetch data after multiple retries.");
+        }
+
+
+        // Function to generate and download the PDF
+        function exportActivityFeedPdf() {
+            const doc = new jsPDF();
+            let y = 15;
+            const margin = 20;
+
+            doc.setFontSize(20);
+            doc.text("Candidate Profile and Activity Report", margin, y);
+            y += 10;
+
+            // --- Candidate Details Section ---
+            doc.setFontSize(14);
+            doc.text("Candidate Details", margin, y);
+            y += 5;
+            doc.setDrawColor(200);
+            doc.line(margin, y, 190, y); // Separator line
+            y += 7;
+
+            doc.setFontSize(10);
+            doc.setTextColor(50, 50, 50); // Dark Gray
+
+            // Helper to add key-value pairs
+            const addDetail = (key, value) => {
+                doc.text(key + ":", margin, y);
+                doc.text(value, margin + 40, y);
+                y += 6;
+            };
+
+            addDetail("Candidate", candidateData.candidate);
+            addDetail("Department", candidateData.dept);
+            addDetail("Location", candidateData.location);
+            addDetail("Package", candidateData.package);
+            addDetail("Candidate ID", candidateData.candidateId);
+            y += 10;
+
+            // --- Activity Feed Section ---
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0); // Black
+            doc.text("Activity Feed Timeline", margin, y);
+            y += 10;
+
+            doc.setDrawColor(200);
+            doc.line(margin, y, 190, y); // Separator line
+            y += 7;
+
+            // Timeline Visualization in PDF
+            activityData.forEach(activity => {
+                // Check if we need a new page
+                if (y > 280) {
+                    doc.addPage();
+                    y = 15;
+                }
+
+                const dateText = activity.date;
+                const detailText = activity.detail;
+
+                // Set color for timeline dot and line
+                const dotColor = activity.highlight ? [239, 68, 68] : [156, 163, 175]; // Red or Gray
+
+                // 1. Draw the vertical timeline line (connecting previous dot to this dot)
+                doc.setDrawColor(200);
+                doc.setLineWidth(0.5);
+                if (activityData.indexOf(activity) > 0) {
+                    doc.line(margin + 2, y - 7, margin + 2, y + 2);
+                }
+                
+                // 2. Draw the dot
+                doc.setFillColor(...dotColor);
+                doc.circle(margin + 2, y, 1.5, 'FD'); // Filled circle
+
+                // 3. Add the date and detail text
+                doc.setFontSize(9);
+                doc.setTextColor(150, 150, 150);
+                doc.text(dateText, margin + 8, y);
+
+                doc.setFontSize(10);
+                doc.setTextColor(50, 50, 50);
+                
+                // Use doc.splitTextToSize for long descriptions
+                const splitText = doc.splitTextToSize(detailText, 140);
+                doc.text(splitText, margin + 35, y);
+
+                // Increment Y position based on text height
+                y += (splitText.length * 4) + 2; // +2 for spacing
+            });
+
+            // Save the PDF
+            doc.save("Activity_Feed_Report_" + candidateData.candidate.replace(/\s/g, '_') + ".pdf");
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 sm:p-8 font-sans">
+
+    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-6 sm:p-8 border border-gray-100">
+
+        <!-- Header Section (Anup Kumar) -->
+        <div class="pb-6 border-b border-gray-200 mb-6">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-gray-800">Anup Kumar</h1>
+                <span class="px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full shadow-md">
+                    In Progress (0% complete)
+                </span>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
+                <span><a href="#" class="text-blue-600 hover:text-blue-800">Add New Checks</a></span>
+                <span><a href="#" class="text-blue-600 hover:text-blue-800">Documents and Disclosures</a></span>
+                <span><a href="#" class="text-blue-600 hover:text-blue-800">Cost Summary</a></span>
+            </div>
+        </div>
+
+        <!-- Candidate Details Grid -->
+        <div id="candidate-details-section" class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-12 text-sm mb-10">
+            <div>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Added By:</span> <span class="text-gray-900">Testing Covid</span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Package:</span> <span class="text-gray-900">IS Test Package</span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Department:</span> <span class="text-gray-900">Department Dev</span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Location:</span> <span class="text-gray-900">Pune</span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Order ID:</span> <span class="text-gray-900">S68ZL</span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Candidate ID:</span> <span class="text-gray-900">691709b07219ac95545f8aca</span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Expected Employment:</span> <span class="text-gray-900">11/26/25 <a href="#" class="text-blue-500 hover:underline">Edit</a></span></p>
+            </div>
+            <div>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Date of Birth:</span> <span class="text-gray-900">11/01/XXXX <a href="#" class="text-blue-500 hover:underline">View</a></span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Address:</span> <span class="text-gray-900">Test, Phoenix, AZ, 85001</span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Email Address:</span> <span class="text-gray-900">anup.kumar\_testeeeeee@vetty.co</span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Phone #:</span> <span class="text-gray-900">(222) 222-2222</span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Social Security #:</span> <span class="text-gray-900">XXX-XX-2222 <a href="#" class="text-blue-500 hover:underline">View</a></span></p>
+                <p class="mb-2"><span class="font-semibold text-gray-700">Expected Annual Salary:</span> <span class="text-gray-900">$1,212,121</span></p>
+            </div>
+        </div>
+        
+        <!-- Main Content Grid (Activity Feed & Verified Profile) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1">
+                <!-- Row 1: Actions | More Actions... -->
+                <div class="flex space-x-6 text-sm mb-6">
+                    <!-- Actions (Semibold) -->
+                    <span class="text-gray-900 font-semibold">Actions</span>
+                    
+                    <!-- More Actions... (Gray Link) -->
+                    <a href="#" class="text-gray-600 hover:text-gray-800">More Actions...</a>
+                </div>
+
+                <!-- Row 2: Activity Feed Header | Export Activity Feed Link -->
+                <!-- This row fulfills the requirement: "Below Actions should Be Activity Feed" and "export PDF should be beside Activity Feed" -->
+                <div class="flex justify-between items-center mb-4">
+                    <!-- Activity Feed Header -->
+                    <h2 class="text-xl font-semibold text-gray-800">Activity Feed</h2>
+
+                    <!-- Export Link (Renamed and Repositioned) -->
+                    <a href="javascript:void(0)" onclick="exportActivityFeedPdf()" 
+                       class="text-blue-600 font-medium hover:text-blue-700 transition duration-150 flex items-center text-sm">
+                        <!-- Updated download icon SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export Activity Feed
+                    </a>
+                </div>
+                
+                <!-- Activity Feed Timeline -->
+                <div id="activity-feed-timeline">
+                    <!-- Iterating over the mock activityData to render the feed -->
+                    <template id="activity-template">
+                        <div class="activity-item">
+                            <p class="text-sm font-medium text-gray-700"></p>
+                            <span class="text-xs text-gray-400 absolute right-0 top-0"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Verified Profile</h2>
+                <!-- Mock Verified Profile Sections -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 shadow-sm">
+                    <h3 class="text-lg font-medium mb-3">Background Screening</h3>
+                    <div class="flex justify-between items-center mb-2 text-sm">
+                        <p>Social Security Trace</p>
+                        <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full font-semibold">In Progress</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <p>Federal Criminal Check</p>
+                        <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full font-semibold">In Progress</span>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <h3 class="text-lg font-medium mb-3">Motor Vehicle Record</h3>
+                    <p class="text-gray-500 text-sm">Details pending on check completion.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // IIFE to populate the mock Activity Feed in the HTML
+        (function renderActivityFeed() {
+            const container = document.getElementById('activity-feed-timeline');
+            const template = document.getElementById('activity-template');
+
+            activityData.forEach(item => {
+                const clone = template.content.cloneNode(true);
+                const itemDiv = clone.querySelector('.activity-item');
+                
+                // Apply the red dot style for highlighted items
+                if (item.highlight) {
+                    // We only need to add the class, the CSS now handles the dot and line colors via the .highlight-red class
+                    itemDiv.classList.add('highlight-red'); 
+                    itemDiv.querySelector('p').classList.add('text-red-600', 'font-bold');
+                } 
+
+                itemDiv.querySelector('p').textContent = item.detail;
+                itemDiv.querySelector('span').textContent = item.date;
+                container.appendChild(clone);
+            });
+            
+        })();
+    </script>
+</body>
+</html>
