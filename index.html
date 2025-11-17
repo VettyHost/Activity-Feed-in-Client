@@ -53,6 +53,21 @@
         .activity-item.highlight-red:not(:last-child):after {
             background-color: #fca5a5; /* Light red line */
         }
+        
+        /* Fixes the overlap issue in the UI by defining a consistent width for the date column */
+        .activity-item .detail-text-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .activity-item .detail-text {
+            flex-grow: 1;
+            padding-right: 1rem; /* Space between text and date */
+        }
+        .activity-item .date-text {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
     </style>
     <script>
         // Global utility to get the jspdf instance
@@ -76,9 +91,9 @@
             { date: "11/13/25", detail: "Candidate profile created." },
         ];
         
-        // Custom helper function to handle exponential backoff for API calls
+        // Custom helper function to handle exponential backoff for API calls (kept for best practice)
         async function fetchWithBackoff(url, options, retries = 3, delay = 1000) {
-            const apiKey = "" // If you want to use models other than gemini-2.5-flash-preview-09-2025 or imagen-4.0-generate-001, provide an API key here. Otherwise, leave this as-is.
+            const apiKey = "" 
             const urlWithKey = `${url}?key=${apiKey}`;
 
             for (let i = 0; i < retries; i++) {
@@ -87,7 +102,6 @@
                     if (response.ok) {
                         return response;
                     } else if (response.status === 429) {
-                        // Too Many Requests, implement exponential backoff
                         await new Promise(resolve => setTimeout(resolve, delay * (2 ** i)));
                         continue;
                     } else {
@@ -95,7 +109,6 @@
                     }
                 } catch (error) {
                     if (i === retries - 1) throw error;
-                    // Wait before retrying
                     await new Promise(resolve => setTimeout(resolve, delay * (2 ** i)));
                 }
             }
@@ -109,44 +122,50 @@
             let y = 15;
             const margin = 20;
 
-            doc.setFontSize(20);
-            doc.text("Candidate Profile and Activity Report", margin, y);
-            y += 10;
+            doc.setFontSize(24);
+            doc.setFont(doc.getFont().fontName, 'bold');
+            doc.text("Candidate Activity Feed Report", margin, y);
+            y += 15;
 
             // --- Candidate Details Section ---
-            doc.setFontSize(14);
+            doc.setFontSize(16);
+            doc.setTextColor(30, 30, 30);
             doc.text("Candidate Details", margin, y);
             y += 5;
-            doc.setDrawColor(200);
+            doc.setDrawColor(150);
             doc.line(margin, y, 190, y); // Separator line
-            y += 7;
+            y += 10;
 
             doc.setFontSize(10);
+            doc.setFont(doc.getFont().fontName, 'normal');
             doc.setTextColor(50, 50, 50); // Dark Gray
 
-            // Helper to add key-value pairs
+            // Helper to add key-value pairs with better alignment
             const addDetail = (key, value) => {
+                doc.setFont(doc.getFont().fontName, 'bold');
                 doc.text(key + ":", margin, y);
-                doc.text(value, margin + 40, y);
+                doc.setFont(doc.getFont().fontName, 'normal');
+                doc.text(value, margin + 50, y);
                 y += 6;
             };
 
-            addDetail("Candidate", candidateData.candidate);
+            addDetail("Candidate Name", candidateData.candidate);
             addDetail("Department", candidateData.dept);
             addDetail("Location", candidateData.location);
-            addDetail("Package", candidateData.package);
+            addDetail("Package / Salary", candidateData.package);
             addDetail("Candidate ID", candidateData.candidateId);
-            y += 10;
+            y += 15;
 
             // --- Activity Feed Section ---
-            doc.setFontSize(14);
-            doc.setTextColor(0, 0, 0); // Black
+            doc.setFontSize(16);
+            doc.setFont(doc.getFont().fontName, 'bold');
+            doc.setTextColor(30, 30, 30); // Black
             doc.text("Activity Feed Timeline", margin, y);
-            y += 10;
-
-            doc.setDrawColor(200);
+            y += 5;
+            
+            doc.setDrawColor(150);
             doc.line(margin, y, 190, y); // Separator line
-            y += 7;
+            y += 10;
 
             // Timeline Visualization in PDF
             activityData.forEach(activity => {
@@ -154,13 +173,15 @@
                 if (y > 280) {
                     doc.addPage();
                     y = 15;
+                    doc.setFontSize(12);
+                    doc.setFont(doc.getFont().fontName, 'bold');
+                    doc.text("Activity Feed Timeline (Continued)", margin, y);
+                    y += 10;
                 }
 
                 const dateText = activity.date;
                 const detailText = activity.detail;
-
-                // Set color for timeline dot and line
-                const dotColor = activity.highlight ? [239, 68, 68] : [156, 163, 175]; // Red or Gray
+                const isHighlight = activity.highlight;
 
                 // 1. Draw the vertical timeline line (connecting previous dot to this dot)
                 doc.setDrawColor(200);
@@ -170,23 +191,36 @@
                 }
                 
                 // 2. Draw the dot
+                const dotColor = isHighlight ? [239, 68, 68] : [156, 163, 175]; // Red or Gray
                 doc.setFillColor(...dotColor);
                 doc.circle(margin + 2, y, 1.5, 'FD'); // Filled circle
 
                 // 3. Add the date and detail text
-                doc.setFontSize(9);
-                doc.setTextColor(150, 150, 150);
-                doc.text(dateText, margin + 8, y);
-
                 doc.setFontSize(10);
-                doc.setTextColor(50, 50, 50);
+                doc.setFont(doc.getFont().fontName, 'normal');
                 
-                // Use doc.splitTextToSize for long descriptions
-                const splitText = doc.splitTextToSize(detailText, 140);
-                doc.text(splitText, margin + 35, y);
+                // Date on the right
+                doc.setTextColor(100, 100, 100);
+                doc.text(dateText, 185, y, { align: 'right' }); 
+
+                // Activity Description
+                doc.setTextColor(50, 50, 50);
+                if (isHighlight) {
+                    doc.setFont(doc.getFont().fontName, 'bold');
+                    doc.setTextColor(200, 0, 0); // Dark Red for highlighted text
+                }
+                
+                // Use doc.splitTextToSize for long descriptions, starting after the margin + dot + gap
+                const textStartX = margin + 10;
+                const maxTextWidth = 150; // Reduced width to accommodate date on the right
+                const splitText = doc.splitTextToSize(detailText, maxTextWidth);
+                doc.text(splitText, textStartX, y);
 
                 // Increment Y position based on text height
-                y += (splitText.length * 4) + 2; // +2 for spacing
+                y += (splitText.length * 4.5) + 3; // +3 for spacing
+                
+                // Reset font style
+                doc.setFont(doc.getFont().fontName, 'normal');
             });
 
             // Save the PDF
@@ -198,19 +232,36 @@
 
     <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-6 sm:p-8 border border-gray-100">
 
-        <!-- Header Section (Anup Kumar) -->
+        <!-- Header Section -->
         <div class="pb-6 border-b border-gray-200 mb-6">
-            <div class="flex items-center justify-between">
+            <!-- First Row: Candidate Name and Action Links -->
+            <div class="flex items-start justify-between">
                 <h1 class="text-2xl font-bold text-gray-800">Anup Kumar</h1>
-                <span class="px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full shadow-md">
+                
+                <!-- Action Links (Right Aligned) -->
+                <span class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
+                    <span><a href="#" class="text-blue-600 hover:text-blue-800 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>Add New Checks</a></span>
+                    <span><a href="#" class="text-blue-600 hover:text-blue-800 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-3-3v6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>Documents and Disclosures</a></span>
+                    <span><a href="#" class="text-blue-600 hover:text-blue-800 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v4m-3-4H9m0 0a1 1 0 01-1-1V4a1 1 0 011-1h6a1 1 0 011 1v12a1 1 0 01-1 1z" /></svg>Cost Summary</a></span>
+                </span>
+            </div>
+            
+            <!-- Second Row: Status Badge (Below Candidate Name) -->
+            <div class="mt-2">
+                 <span class="px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full shadow-md whitespace-nowrap">
                     In Progress (0% complete)
                 </span>
             </div>
-            <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
-                <span><a href="#" class="text-blue-600 hover:text-blue-800">Add New Checks</a></span>
-                <span><a href="#" class="text-blue-600 hover:text-blue-800">Documents and Disclosures</a></span>
-                <span><a href="#" class="text-blue-600 hover:text-blue-800">Cost Summary</a></span>
+
+            <div class="mt-4">
+                <!-- Dropdown for Screening Tags -->
+                <select class="px-3 py-1 border border-gray-300 rounded-lg text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500">
+                    <option>Screening Tags</option>
+                    <option>Tag 1</option>
+                    <option>Tag 2</option>
+                </select>
             </div>
+            
         </div>
 
         <!-- Candidate Details Grid -->
@@ -248,7 +299,6 @@
                 </div>
 
                 <!-- Row 2: Activity Feed Header | Export Activity Feed Link -->
-                <!-- This row fulfills the requirement: "Below Actions should Be Activity Feed" and "export PDF should be beside Activity Feed" -->
                 <div class="flex justify-between items-center mb-4">
                     <!-- Activity Feed Header -->
                     <h2 class="text-xl font-semibold text-gray-800">Activity Feed</h2>
@@ -256,7 +306,7 @@
                     <!-- Export Link (Renamed and Repositioned) -->
                     <a href="javascript:void(0)" onclick="exportActivityFeedPdf()" 
                        class="text-blue-600 font-medium hover:text-blue-700 transition duration-150 flex items-center text-sm">
-                        <!-- Updated download icon SVG -->
+                        <!-- Download icon SVG -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
@@ -269,8 +319,10 @@
                     <!-- Iterating over the mock activityData to render the feed -->
                     <template id="activity-template">
                         <div class="activity-item">
-                            <p class="text-sm font-medium text-gray-700"></p>
-                            <span class="text-xs text-gray-400 absolute right-0 top-0"></span>
+                            <div class="detail-text-container">
+                                <p class="detail-text text-sm font-medium text-gray-700"></p>
+                                <span class="date-text text-xs text-gray-400"></span>
+                            </div>
                         </div>
                     </template>
                 </div>
@@ -311,13 +363,12 @@
                 
                 // Apply the red dot style for highlighted items
                 if (item.highlight) {
-                    // We only need to add the class, the CSS now handles the dot and line colors via the .highlight-red class
                     itemDiv.classList.add('highlight-red'); 
-                    itemDiv.querySelector('p').classList.add('text-red-600', 'font-bold');
+                    itemDiv.querySelector('.detail-text').classList.add('text-red-600', 'font-bold');
                 } 
 
-                itemDiv.querySelector('p').textContent = item.detail;
-                itemDiv.querySelector('span').textContent = item.date;
+                itemDiv.querySelector('.detail-text').textContent = item.detail;
+                itemDiv.querySelector('.date-text').textContent = item.date;
                 container.appendChild(clone);
             });
             
