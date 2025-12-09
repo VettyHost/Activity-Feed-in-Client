@@ -15,11 +15,9 @@
         .activity-item {
             position: relative;
             padding-left: 30px;
-            /* Space for timeline */
             padding-bottom: 20px;
         }
 
-        /* Timeline dot */
         .activity-item:before {
             content: '';
             position: absolute;
@@ -29,13 +27,10 @@
             height: 18px;
             border-radius: 50%;
             background-color: #cbd5e1;
-            /* gray-300 */
             border: 4px solid #f8fafc;
-            /* bg-gray-50 */
             z-index: 10;
         }
 
-        /* Timeline line */
         .activity-item:not(:last-child):after {
             content: '';
             position: absolute;
@@ -44,13 +39,10 @@
             bottom: -20px;
             width: 2px;
             background-color: #e2e8f0;
-            /* gray-200 */
         }
 
-        /* Highlighted/Error state dot */
         .activity-item.highlight-red:before {
             background-color: #ef4444;
-            /* red-500 */
         }
     </style>
 </head>
@@ -72,7 +64,7 @@
                 <!-- Left Column: Name and Status -->
                 <div class="flex-shrink-0 mb-4 md:mb-0">
                     <div class="flex items-center">
-                        <img src="https://placehold.co/40x40/e0e0e0/7f7f7f?text=DR" alt="logo" class="h-10 w-10 rounded-full mr-3">
+                         <img src="https://placehold.co/40x40/e0e0e0/7f7f7f?text=DR" alt="logo" class="h-10 w-10 rounded-full mr-3">
                         <h1 class="text-2xl font-bold text-gray-900">Debendu Roy</h1>
                     </div>
                     <div class="mt-2">
@@ -88,7 +80,7 @@
                 <!-- Right Column: Action Links -->
                 <div class="flex items-start space-x-6 text-sm font-medium text-gray-600">
                     <a href="#" class="flex items-center hover:text-blue-600">
-                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                         Add New Checks
                     </a>
                     <a href="#" class="flex items-center hover:text-blue-600">
@@ -96,7 +88,7 @@
                         Documents and Disclosures
                     </a>
                     <a href="#" class="flex items-center hover:text-blue-600">
-                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8C9.79 8 8 9.79 8 12s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.11 0-2.08-.402-2.599-1M12 14c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"></path></svg>
+                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8C9.79 8 8 9.79 8 12s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.11 0-2.08-.402-2.599-1M12 14c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"></path></svg>
                         Cost Summary
                     </a>
                 </div>
@@ -104,98 +96,52 @@
 
             <hr class="my-6 border-gray-200">
 
-            <!-- Candidate Details Grid -->
+            <!-- Candidate Details Grid (Web UI) -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4 text-sm">
                 <!-- Col 1 -->
-                <div>
-                    <span class="text-gray-500">Added By</span>
-                    <p class="text-gray-900 font-medium">Testing Covid</p>
-                </div>
+                <div><span class="text-gray-500">Added By</span><p class="text-gray-900 font-medium">Testing Covid</p></div>
                 <!-- Col 2 -->
-                <div>
-                    <span class="text-gray-500">Date Of Birth</span>
-                    <p class="text-gray-900 font-medium">11/01/XXXX <a href="#" class="text-blue-600 font-medium">View</a></p>
-                </div>
-                <!-- Col 3 & 4 (empty in screenshot, reserved) -->
-                <div></div>
-                <div></div>
+                <div><span class="text-gray-500">Date Of Birth</span><p class="text-gray-900 font-medium">11/01/XXXX <a href="#" class="text-blue-600 font-medium">View</a></p></div>
+                <!-- Reserved -->
+                <div></div><div></div>
 
                 <!-- Col 1 -->
-                <div>
-                    <span class="text-gray-500">Package</span>
-                    <p class="text-gray-900 font-medium">19 test package</p>
-                </div>
+                <div><span class="text-gray-500">Package</span><p class="text-gray-900 font-medium">19 test package</p></div>
                 <!-- Col 2 -->
-                <div>
-                    <span class="text-gray-500">Address</span>
-                    <p class="text-gray-900 font-medium">Test, Phoenix, AZ, 85001</p>
-                </div>
+                <div><span class="text-gray-500">Address</span><p class="text-gray-900 font-medium">Test, Phoenix, AZ, 85001</p></div>
 
                 <!-- Col 1 -->
-                <div>
-                    <span class="text-gray-500">Department</span>
-                    <p class="text-gray-900 font-medium">Department Dev</p>
-                </div>
+                <div><span class="text-gray-500">Department</span><p class="text-gray-900 font-medium">Department Dev</p></div>
                 <!-- Col 2 -->
-                <div>
-                    <span class="text-gray-500">Email Address</span>
-                    <p class="text-gray-900 font-medium">debendu.roy@vetty.co</p>
-                </div>
+                <div><span class="text-gray-500">Email Address</span><p class="text-gray-900 font-medium">debendu.roy@vetty.co</p></div>
 
                 <!-- Col 1 -->
-                <div>
-                    <span class="text-gray-500">Location</span>
-                    <p class="text-gray-900 font-medium">Pune</p>
-                </div>
+                <div><span class="text-gray-500">Location</span><p class="text-gray-900 font-medium">Pune</p></div>
                 <!-- Col 2 -->
-                <div>
-                    <span class="text-gray-500">Phone #</span>
-                    <p class="text-gray-900 font-medium">(222) 222-2222</p>
-                </div>
+                <div><span class="text-gray-500">Phone #</span><p class="text-gray-900 font-medium">(222) 222-2222</p></div>
 
-                <!-- Col 1 -->
-                <div>
-                    <span class="text-gray-500">Order ID</span>
-                    <p class="text-gray-900 font-medium">S68ZL</p>
-                </div>
+                 <!-- Col 1 -->
+                <div><span class="text-gray-500">Order ID</span><p class="text-gray-900 font-medium">S68ZL</p></div>
                 <!-- Col 2 -->
-                <div>
-                    <span class="text-gray-500">Social Security #</span>
-                    <p class="text-gray-900 font-medium">XXX-XX-2222 <a href="#" class="text-blue-600 font-medium">View</a></p>
-                </div>
-
-                <!-- Col 1 -->
-                <div>
-                    <span class="text-gray-500">Candidate ID</span>
-                    <p class="text-gray-900 font-medium">691709b07219ac95545f8aca</p>
-                </div>
+                <div><span class="text-gray-500">Social Security #</span><p class="text-gray-900 font-medium">XXX-XX-2222 <a href="#" class="text-blue-600 font-medium">View</a></p></div>
+                
+                 <!-- Col 1 -->
+                <div><span class="text-gray-500">Candidate ID</span><p class="text-gray-900 font-medium">691709b07219ac5545f8aca</p></div>
                 <!-- Col 2 -->
-                <div>
-                    <span class="text-gray-500">Expected Annual Salary</span>
-                    <p class="text-gray-900 font-medium">$1,212,121</p>
-                </div>
-
-                <!-- Col 1 -->
-                <div>
-                    <span class="text-gray-500">uniq id</span>
-                    <p class="text-gray-900 font-medium"><a href="#" class="text-blue-600 font-medium">Add</a></p>
-                </div>
-                <!-- Col 2 -->
-                <div></div>
-
-                <!-- Col 1 -->
-                <div>
-                    <span class="text-gray-500">Expected Employment</span>
-                    <p class="text-gray-900 font-medium">11/26/25 <a href="#" class="text-blue-600 font-medium">Edit</a></p>
-                </div>
-                <!-- Col 2 -->
+                <div><span class="text-gray-500">Expected Annual Salary</span><p class="text-gray-900 font-medium">$1,212,121</p></div>
+                
+                 <!-- Col 1 -->
+                <div><span class="text-gray-500">uniq id</span><p class="text-gray-900 font-medium"><a href="#" class="text-blue-600 font-medium">Add</a></p></div>
+                 <!-- Col 2 -->
                 <div></div>
                 
                  <!-- Col 1 -->
-                <div>
-                    <span class="text-gray-500">Start Date</span>
-                    <p class="text-gray-900 font-medium"></p>
-                </div>
+                <div><span class="text-gray-500">Expected Employment</span><p class="text-gray-900 font-medium">11/26/25 <a href="#" class="text-blue-600 font-medium">Edit</a></p></div>
+                 <!-- Col 2 -->
+                <div></div>
+                
+                  <!-- Col 1 -->
+                <div><span class="text-gray-500">Start Date</span><p class="text-gray-900 font-medium"></p></div>
             </div>
         </div>
 
@@ -214,7 +160,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-semibold text-gray-800">Activity Feed</h2>
                     <button id="exportButton" class="text-sm font-medium text-blue-600 hover:underline flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         Export Activity Feed
                     </button>
                 </div>
@@ -228,12 +174,10 @@
             <!-- Right Column: Verified Profile -->
             <div class="lg:col-span-2">
                 <h2 class="text-xl font-semibold text-gray-800 mb-6">Verified Profile</h2>
-
                 <!-- Background Screening Card -->
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Background Screening</h3>
-                        <!-- Icons can go here -->
                     </div>
                     
                     <span class="text-xs font-medium text-gray-500 uppercase">IDENTITY</span>
@@ -248,23 +192,20 @@
                         <span class="bg-blue-600 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">In Progress</span>
                     </div>
                 </div>
-                <!-- Other cards (Motor Vehicle, Onboarding) can be added here -->
-
             </div>
         </div>
-    </div> <!-- End App Container -->
+    </div> 
 
 
     <script>
         // --- DATA ---
-        // Using an object for candidate data for easier PDF generation
         const candidateData = {
             "Candidate": "Debendu Roy",
             "Package": "19 test package",
             "Department": "Department Dev",
             "Location": "Pune",
             "Order ID": "S68ZL",
-            "Candidate ID": "691709b07219ac95545f8aca",
+            "Candidate ID": "691709b07219ac5545f8aca",
             "Email": "debendu.roy@vetty.co",
             "Phone": "(222) 222-2222",
             "DOB": "11/01/XXXX",
@@ -272,9 +213,9 @@
             "SSN": "XXX-XX-2222",
             "Salary": "$1,212,121"
         };
-
-        // Data is now REVERSE-CHRONOLOGICAL (newest at top)
-        // This matches the user's logic: "latest always remains on top"
+        
+        // Correct Chronological Order (Newest First)
+        // Background screening (oldest) at bottom. Vetty Reminded (newest) at top.
         const activityFeedData = [
             { date: "11/15/25", time: "10:00 AM", detail: "Vetty Reminded Debendu To Complete The Form I-9.", highlight: false },
             { date: "11/14/25", time: "10:15 AM", detail: "Debendu Has Not Completed Their I-9 Form.", highlight: true },
@@ -285,16 +226,10 @@
 
         // --- FUNCTIONS ---
 
-        /**
-         * Renders the activity feed data into the DOM.
-         */
         function renderActivityFeed() {
             const container = document.getElementById('timelineContainer');
-            if (!container) {
-                console.error("Timeline container not found!");
-                return;
-            }
-            container.innerHTML = ''; // Clear old content
+            if (!container) return;
+            container.innerHTML = ''; 
 
             activityFeedData.forEach(item => {
                 const itemDiv = document.createElement('div');
@@ -309,7 +244,7 @@
 
                 const dateSpan = document.createElement('span');
                 dateSpan.className = 'block text-xs text-gray-500 mt-1';
-                dateSpan.textContent = `${item.date}`; // UI only shows date
+                dateSpan.textContent = `${item.date}`; 
 
                 itemDiv.appendChild(detailSpan);
                 itemDiv.appendChild(dateSpan);
@@ -318,176 +253,216 @@
         }
 
 
-        /**
-         * Generates and downloads a PDF of the activity feed.
-         */
         function exportActivityFeedPdf() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-
+            const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 15;
-            let y = 20; // Initial Y position
+            let y = 15;
 
-            // --- 1. Get Timestamp ---
-            const now = new Date();
-            const timeZone = new Intl.DateTimeFormat('default', { timeZoneName: 'short' }).formatToParts(now).find(part => part.type === 'timeZoneName')?.value || '';
-            const formattedDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
-            const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-            const generatedTimestamp = `Generated: ${formattedDate}, ${formattedTime} ${timeZone}`;
-
-            // --- 2. PDF Header ---
-            doc.setFillColor("#022e6a"); // Dark Blue
-            doc.rect(0, 0, doc.internal.pageSize.getWidth(), 40, 'F');
+            // --- 1. TOP HEADER (Vetty Style) ---
+            
+            // Logo (Text representation for simplicity, but styled)
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(18);
-            doc.setTextColor("#FFFFFF"); // White
-            doc.text("Activity Feed Report", margin, y);
-            y += 8;
+            doc.setFontSize(24);
+            doc.setTextColor("#3b82f6"); // Blue
+            doc.text("Vetty", margin, y + 5); // Simulating logo
+            
+            // Address (Gray, Small)
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor("#6b7280");
+            doc.text("1205 BMC Drive, Suite 601, Cedar Park, TX 78613", margin + 35, y);
+            doc.text("855-468-2889 | www.vetty.co", margin + 35, y + 4);
 
+            // Right Side Header Info
+            const rightMargin = pageWidth - margin;
+            doc.setFontSize(9);
+            doc.setTextColor("#000000");
+
+            doc.setFont("helvetica", "bold");
+            doc.text("REQUESTING COMPANY", rightMargin, y, { align: "right" });
+            doc.setFont("helvetica", "normal");
+            doc.text("Bluetext client", rightMargin, y + 4, { align: "right" });
+
+            doc.setFont("helvetica", "bold");
+            doc.text("PACKAGE NAME", rightMargin, y + 10, { align: "right" });
+            doc.setFont("helvetica", "normal");
+            doc.text(candidateData["Package"], rightMargin, y + 14, { align: "right" }); // Using variable
+
+            doc.setFont("helvetica", "bold");
+            doc.text("COMPLETION DATE", rightMargin, y + 20, { align: "right" });
+            doc.setFont("helvetica", "normal");
+            doc.text("11-27-2025", rightMargin, y + 24, { align: "right" });
+
+            y += 35; // Move down
+
+            // "Activity Feed Report" Title and Timestamp
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.setTextColor("#000000");
+            doc.text("Activity Feed Report", margin, y);
+            
+            // Dynamic Timestamp
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const timeStr = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
+            const timeZone = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(now).find(part => part.type === 'timeZoneName')?.value || '';
+
+            const timestampStr = `Generated: ${day}-${month}-${year}, ${timeStr} ${timeZone}`;
+            
             doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
-            doc.setTextColor("#E0E0E0"); // Light Gray
-            doc.text(generatedTimestamp, margin, y);
-            y = 55; // Reset Y below the header
+            doc.setTextColor("#6b7280"); // Gray text
+            doc.text(timestampStr, margin, y + 6);
 
-            // --- 3. Candidate Details Table ---
-            const tableBody = [
-                ["Candidate:", candidateData["Candidate"]],
-                ["Package:", candidateData["Package"]],
-                ["Department:", candidateData["Department"]],
-                ["Location:", candidateData["Location"]],
-            ];
+            y += 15;
 
-            doc.autoTable({
-                startY: y,
-                head: [['Candidate Details', '']],
-                body: tableBody,
-                theme: 'grid',
-                headStyles: {
-                    fillColor: [230, 230, 230], // Light gray
-                    textColor: [0, 0, 0], // Black
-                    fontStyle: 'bold',
-                },
-                columnStyles: {
-                    0: {
-                        fontStyle: 'bold',
-                        fillColor: [245, 245, 245], // Lighter gray
-                        cellWidth: 40,
-                    },
-                    1: {
-                        cellWidth: 'auto'
-                    }
-                },
-                didDrawPage: (data) => {
-                    y = data.cursor.y; // Update y position after table
-                }
-            });
+            // --- 2. BLACK CANDIDATE BANNER (REVISED) ---
+            // Contains: Title "Candidate Details", then Candidate, Package, Department, Location
+            const bannerHeight = 55;
+            doc.setFillColor("#000000"); // Black background
+            doc.rect(0, y, pageWidth, bannerHeight, 'F');
+            
+            let bannerY = y + 10;
+            const col1 = margin;
+            const col2 = margin + 80; // Second column
+            
+            // Header: "Candidate Details"
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor("#FFFFFF");
+            doc.text("Candidate Details", col1, bannerY);
+            
+            bannerY += 15;
+            
+            // Define fields to show
+            // Candidate, Package, Department, Location
+            
+            // Row 1
+            doc.setFontSize(8);
+            doc.setTextColor("#cbd5e1"); // Light gray label
+            doc.text("CANDIDATE", col1, bannerY);
+            doc.text("PACKAGE", col2, bannerY);
+            
+            bannerY += 5;
+            doc.setFontSize(9);
+            doc.setTextColor("#FFFFFF"); // White value
+            doc.text(candidateData["Candidate"], col1, bannerY);
+            doc.text(candidateData["Package"], col2, bannerY);
+            
+            bannerY += 12; // Gap between rows
+            
+            // Row 2
+            doc.setFontSize(8);
+            doc.setTextColor("#cbd5e1"); // Light gray label
+            doc.text("DEPARTMENT", col1, bannerY);
+            doc.text("LOCATION", col2, bannerY);
+            
+            bannerY += 5;
+            doc.setFontSize(9);
+            doc.setTextColor("#FFFFFF"); // White value
+            doc.text(candidateData["Department"], col1, bannerY);
+            doc.text(candidateData["Location"], col2, bannerY);
 
-            y += 15; // Add padding after table
+            // Placeholder for geometric graphic (Right side)
+            doc.setFillColor("#f43f5e"); // Pinkish red
+            doc.circle(pageWidth - 10, y + bannerHeight - 20, 15, 'F');
+             doc.setFillColor("#3b82f6"); // Blue
+            doc.rect(pageWidth - 25, y + 10, 15, 15, 'F');
 
-            // --- 4. Activity Feed Timeline ---
+            y += bannerHeight + 15;
+
+            // --- 3. ACTIVITY FEED TIMELINE ---
             doc.setFont("helvetica", "bold");
             doc.setFontSize(14);
             doc.setTextColor("#000000");
             doc.text("Activity Feed Timeline", margin, y);
-            y += 4;
-            doc.setDrawColor("#000000");
+            y += 8;
+            
+            // Draw a thick line under title
             doc.setLineWidth(0.5);
-            doc.line(margin, y, doc.internal.pageSize.getWidth() - margin, y); // Separator line
+            doc.line(margin, y, pageWidth - margin, y);
             y += 10;
 
-            const timelineX = margin + 3; // X for the dots/line
-            const textStartX = margin + 18; // X for the text
-            const dateX = doc.internal.pageSize.getWidth() - margin - 35; // X for the date
-
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-
+            const timelineX = margin + 5;
+            const contentX = margin + 20;
+            const dateX = pageWidth - margin - 40;
             const pageHeight = doc.internal.pageSize.getHeight();
-            const bottomMargin = 20;
 
-            // Loop through the data array as-is (reverse-chronological)
             activityFeedData.forEach((item, index) => {
-                // Check if new page is needed
-                const textLines = doc.splitTextToSize(item.detail, dateX - textStartX - 5);
-                const itemHeight = (textLines.length * 5) + 10; // 5 per line + padding
-                if (y + itemHeight > pageHeight - bottomMargin) {
-                    doc.addPage();
-                    y = 20; // Reset Y for new page
-                }
+                 // Page break check
+                 if (y > pageHeight - 20) {
+                     doc.addPage();
+                     y = 20;
+                 }
 
-                // Draw timeline dot
-                const dotY = y + 4;
-                doc.setDrawColor(item.highlight ? "#E53E3E" : "#CBD5E1"); // Red or Gray
-                doc.setFillColor(item.highlight ? "#E53E3A" : "#CBD5E1");
-                doc.circle(timelineX, dotY, 3, 'FD');
-
-                // Draw timeline line (if not last item)
+                // Dotted line (vertical)
                 if (index < activityFeedData.length - 1) {
-                    doc.setDrawColor("#e2e8f0"); // gray-200
-                    doc.setLineWidth(0.5);
-                    // Dynamically calculate line height
-                    const nextItem = activityFeedData[index + 1];
-                    const nextTextLines = doc.splitTextToSize(nextItem.detail, dateX - textStartX - 5);
-                    const nextItemHeight = (nextTextLines.length * 5) + 3;
-                    doc.line(timelineX, dotY + 5, timelineX, dotY + itemHeight + nextItemHeight - 5);
+                    doc.setDrawColor("#e2e8f0");
+                    doc.setLineWidth(1);
+                    doc.setLineDash([1, 1], 0); // Dotted line
+                    doc.line(timelineX, y, timelineX, y + 15); // Short segment
+                    doc.setLineDash([]); // Reset
                 }
 
-                // Draw Text
-                doc.setTextColor(item.highlight ? "#E53E3E" : "#333333"); // Red or Dark Gray
-                doc.setFont("helvetica", item.highlight ? "bold" : "normal");
-                doc.text(textLines, textStartX, y + 5);
+                // Circle
+                const dotColor = item.highlight ? "#ef4444" : "#cbd5e1";
+                doc.setFillColor(dotColor);
+                doc.setDrawColor("#ffffff");
+                doc.setLineWidth(0.5);
+                doc.circle(timelineX, y + 2, 3, 'FD');
+                
+                // Line connection extension
+                 if (index < activityFeedData.length - 1) {
+                    doc.setDrawColor("#e2e8f0");
+                    doc.setLineDash([1, 1], 0); 
+                    // Calculate estimated height of this item to draw line to next
+                    doc.line(timelineX, y + 5, timelineX, y + 15); 
+                    doc.setLineDash([]);
+                }
 
-                // Draw Date & Time
-                doc.setTextColor("#555555"); // Medium Gray
+                // Text Content
+                doc.setFontSize(10);
+                if (item.highlight) {
+                    doc.setTextColor("#ef4444");
+                    doc.setFont("helvetica", "bold");
+                } else {
+                    doc.setTextColor("#374151");
+                    doc.setFont("helvetica", "normal");
+                }
+                
+                const textLines = doc.splitTextToSize(item.detail, dateX - contentX - 5);
+                doc.text(textLines, contentX, y + 3);
+
+                // Date/Time
+                doc.setTextColor("#6b7280");
                 doc.setFont("helvetica", "normal");
-                const timeString = `${item.date}, ${item.time}`;
-                doc.text(timeString, dateX, y + 5);
+                const dateTimeStr = `${item.date}, ${item.time}`;
+                doc.text(dateTimeStr, dateX, y + 3);
 
-                y += itemHeight; // Move y down for the next item
+                y += (textLines.length * 5) + 12; // Spacing
             });
 
-            // --- 5. Save PDF ---
-            doc.save(`Activity_Feed_Report_${candidateData.Candidate.replace(' ', '_')}.pdf`);
+            doc.save("Vetty_Report.pdf");
         }
-        
-        /**
-         * Initializes the application by rendering the feed and attaching event listeners.
-         * Wrapped in a try...catch to display errors on-screen.
-         */
+
         function initializeApp() {
             try {
-                // 1. Render the dynamic UI content
                 renderActivityFeed();
-
-                // 2. Attach event listeners
                 const exportButton = document.getElementById('exportButton');
                 if (exportButton) {
                     exportButton.addEventListener('click', exportActivityFeedPdf);
                 } else {
                     console.error("Export button not found!");
-                    throw new Error("Export button element is missing from the DOM.");
                 }
-
             } catch (error) {
-                console.error("Failed to initialize application:", error);
-                
-                // Display the error on the screen
-                const errorContainer = document.getElementById('error-container');
-                const errorMessage = document.getElementById('error-message');
-                const appContainer = document.getElementById('app-container');
-                
-                if (errorMessage && errorContainer && appContainer) {
-                    errorMessage.textContent = error.message || "An unknown error occurred. Check the console for details.";
-                    errorContainer.classList.remove('hidden');
-                    appContainer.classList.add('hidden'); // Hide the broken app
-                }
+                console.error("App Init Error:", error);
             }
         }
 
-        // --- EXECUTION ---
-        // Call initializeApp directly.
-        // The script is at the end of the <body>, so the DOM is ready.
         initializeApp();
 
     </script>
